@@ -1,0 +1,87 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+sdist/
+wheels/
+pip-log.txt
+pip-delete-this-directory.txt
+MANIFEST
+
+# ---- Virtual envs ----
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# ---- Env / secrets ----
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+
+# ---- ML model weights & caches ----
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+*.h5
+*.pkl
+weights/
+gfpgan/                  # created by gfpgan on first run (downloads weights here)
+hf-cache/                # HuggingFace cache mount target
+torch-cache/             # Torch cache mount target
+.cache/
+~/.cache/
+
+# ---- Logs / runtime artifacts ----
+*.log
+logs/
+*.pid
+*.sock
+
+# ---- Test / coverage / linters ----
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+static
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*.ipynb
+
+# ---- IDE / editor ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# ---- Docker / build context noise ----
+.dockerignore.bak
+docker-volumes/
