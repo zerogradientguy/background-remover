@@ -1,0 +1,40 @@
+[Unit]
+Description=AI Toolkit API (FastAPI + uvicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aitoolkit
+Group=aitoolkit
+WorkingDirectory=/opt/ai-toolkit/app
+
+# Model caches live on the boot volume so weights survive restarts and
+# redeploys. huggingface_hub and torch.hub read these from the environment —
+# pydantic-settings does not manage them, so they must be set here.
+Environment=HF_HOME=/opt/ai-toolkit/cache/hf
+Environment=TORCH_HOME=/opt/ai-toolkit/cache/torch
+Environment=PYTHONUNBUFFERED=1
+# GFPGAN/facexlib resolve some weight paths relative to the working directory.
+Environment=HOME=/opt/ai-toolkit
+
+# Bound to loopback only — nginx terminates the public connection.
+ExecStart=/opt/ai-toolkit/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+
+Restart=always
+RestartSec=5
+# Warmup runs on a background thread, so the port binds in seconds. This
+# timeout only guards a genuinely wedged process.
+TimeoutStartSec=90
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+# Hardening. The cache dir is the only path the service needs to write.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/opt/ai-toolkit
+
+[Install]
+WantedBy=multi-user.target
