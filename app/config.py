@@ -25,6 +25,12 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = "/api/v1"
 
+    # Load models on a background thread so the HTTP port binds immediately.
+    # Required on platforms that fail a deploy if the port does not open within
+    # a fixed window (e.g. Render's ~90s port scan). Set false to block startup
+    # until models are ready.
+    warmup_in_background: bool = True
+
     # BiRefNet
     birefnet_model_id: str = "ZhengPeng7/BiRefNet_lite"
     birefnet_input_size: int = 1024

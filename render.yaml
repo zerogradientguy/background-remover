@@ -1,0 +1,46 @@
+services:
+  - type: web
+    name: ai-toolkit-api
+    runtime: python
+    region: oregon
+    plan: standard
+    branch: main
+
+    # Dependency-free liveness probe — answers immediately while models load.
+    healthCheckPath: /health
+
+    # torch/torchvision come from the CPU-only wheel index first. Render has no
+    # GPU instances, and the default PyPI wheels bundle ~2.5GB of unusable CUDA
+    # libraries that blow up build time and image size.
+    buildCommand: |
+      pip install --upgrade pip
+      pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+      pip install --no-cache-dir -r requirements.txt
+
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # Persist model weights across deploys (see disk below).
+      - key: HF_HOME
+        value: /var/data/hf
+      - key: TORCH_HOME
+        value: /var/data/torch
+      # CPU-only inference: cap enhancer input so a large upload cannot pin the
+      # instance for minutes. Raise if you move to bigger hardware.
+      - key: ENHANCER_MAX_INPUT_SIDE
+        value: "512"
+      - key: WARMUP_IN_BACKGROUND
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+
+    # Without this, every deploy re-downloads BiRefNet, Real-ESRGAN and GFPGAN.
+    # Note: attaching a disk pins the service to a single instance and disables
+    # zero-downtime deploys. Drop it if you would rather scale horizontally and
+    # eat the cold-start download.
+    disk:
+      name: model-cache
+      mountPath: /var/data
+      sizeGB: 10
